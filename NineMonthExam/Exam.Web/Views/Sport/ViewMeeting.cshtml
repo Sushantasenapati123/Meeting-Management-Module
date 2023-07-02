@@ -1,0 +1,110 @@
+﻿
+@{
+    ViewData["Title"] = "ViewMeeting";
+}
+
+
+
+<div class="container position-sticky" style="background-color:forestgreen">
+    <h1 style="padding-top:60px;">Meeting Schedule Management</h1>
+    <div align="right" style="margin-top:-100px">
+        <img src="/@ViewBag.Photo" style="height: 70px; width: 70px;" />
+        <h1 style="margin: 0; ">@ViewBag.Name</h1>
+    </div>
+
+
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+
+                <div class="card-body">
+                    <div class="container">
+
+                        <div class="row mt-2 mb-2">
+
+                            <div class="form-group col-sm-4">
+                                <label>Select Date<span class="text-danger">*</span></label>
+                                <input type="date" id="dat" class="form-control"  />
+
+                            </div>
+
+                        </div>
+                        <fieldset class="border-2">
+
+
+
+                            <div class="row mt-2 mb-2">
+                                <div class="col-sm-"></div>
+                                <div class="form-group col-sm-6">
+                                    <button class="btn btn-success mb-1" id="btnSubmit" onclick="BindSlotDetail()">Display</button>
+
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="row">
+                            <table class="table" id="table_slot">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Meeting Hall Name
+                                        </th>
+                                        <th>
+                                            SLOT-1
+                                        </th>
+                                        <th>
+                                            SLOT-2
+                                        </th>
+                                        <th>
+                                            SLOT-3
+                                        </th>
+                                        <th>
+                                            SLOT-4
+                                        </th>
+                                        <th>
+                                            SLOT-5
+                                        </th>
+                                        <th>
+                                            SLOT-6
+                                        </th>
+                                        <th>
+                                            SLOT-7
+                                        </th>
+                                        <th>
+                                            SLOT-8
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function BindSlotDetail() {
+        var loginuser = {
+         
+            DateOfBooking_date: $("#dat").val()
+        };
+        $("#table_slot").show();
+        $("#table_slot tbody tr").remove();
+        $.getJSON("/Sport/SlotDetailBindView", loginuser, function (data) {
+            data = JSON.parse(data);
+            $.each(data, function (i, prod) {
+                $("#table_slot tbody").append(
+                    `<tr><td>` + prod.MeetingHallName + `</td><td>` + prod.Slot1 + `</td><td>` + prod.Slot2 + `</td><td>` + prod.Slot3 + `</td><td>` + prod.Slot4 + `</td><td>` + prod.Slot5 + `</td><td>` + prod.Slot6 + `</td><td>` + prod.Slot7 + `</td><td>` + prod.Slot8 + `</td></tr>`
+                );
+            });
+        });
+    }
+
+  
+
+</script>

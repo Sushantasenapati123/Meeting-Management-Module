@@ -1,0 +1,157 @@
+﻿@model Bank.Domain.Login.LoginEntity
+@addTagHelper*,Microsoft.AspNetCore.Mvc.TagHelpers*@
+@{
+
+    Layout = null;
+}
+<head>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <script src="~/js/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .captcha_refersh:hover {
+            transition: .4s;
+            transform: scale(0.90);
+        }
+
+        .captcha_form {
+            width: 40px;
+            border: none;
+            outline: none;
+            background: #888;
+            color: black;
+            cursor: pointer;
+            border-radius: 0.5em;
+            margin-left: 5px;
+        }
+
+        .form_input_captcha:focus {
+            border: .1em solid rgb(28,164,248);
+        }
+
+        .preview span {
+            display: inline-block;
+            user-select: none;
+        }
+
+        .preview {
+            color: #555;
+            width: 100%;
+            text-align: center;
+            height: 40px;
+            line-height: 40px;
+            letter-spacing: 8px;
+            border: 1px dashed #888;
+            border-radius: 0.5em;
+            margin-bottom: 1.6em;
+        }
+    </style>
+</head>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link href="~/css/aa.css" rel="stylesheet" />
+<script src="https://kit.fontawesome.com/27be94b9e4.js" crossorigin="anonymous"></script>
+<body>
+    <section class="login">
+        <div class="login_box">
+            <div class="left">
+                <div class="contact">
+                    <div class="" name="myform" id="submit">
+
+                        <h3>SIGN IN</h3>
+                        <input type="text" id="USER_ID" class="" asp-for="EmpUserID" placeholder="USERID">
+                        <input type="password" id="USER_PASSWORD" asp-for="EmpPassword" placeholder="PASSWORD">*
+
+
+
+
+                        <button class="submit" id="btnLogin" style="margin-top: 10px; margin-bottom: 40px">LET'S GO</button>
+
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="right">
+                <div class="right-text">
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).keypress(function (event) {  // i called a clicked event in document here you can chnage it to any other event like.. input field keyup event or so....
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+
+            login();
+        }
+
+    });
+
+    $("#btnLogin").click(function () {
+        login();
+    });
+
+    function login() {
+        if ($("#USER_ID").val() == "") {
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'ENTER USERNAME',
+
+            })
+            document.myform.USER_ID.focus();
+            return false;
+        }
+        if ($("#USER_PASSWORD").val() == "") {
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'Please Enter Password',
+
+            })
+            document.myform.USER_PASSWORD.focus();
+            return false;
+        }
+
+
+
+
+        else {
+            var login = {
+                EmpUserID: $("#USER_ID").val(),
+                EmpPassword: $("#USER_PASSWORD").val(),
+            };
+            $.ajax({
+                url: "/Sport/loginpage",
+                data: login,
+                type: "POST",
+                success: function (result) {
+                    if (result == 3) {
+                        window.location.href = '/Sport/AfterLoginPage/';
+
+                    }
+                    if (result == 4) {
+                        alert("Invalid Credential");
+
+                    }
+
+
+
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+            });
+        }
+
+    }
+
+
+
+</script>

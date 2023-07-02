@@ -1,0 +1,131 @@
+USE [chikun]
+GO
+/****** Object:  StoredProcedure [dbo].[Meeting]    Script Date: 01-07-2023 13:46:52 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER proc [dbo].[Meeting](
+@EmpUserID varchar(20)=null,
+@EmpPassword varchar(20)=null,
+
+@DateOfBooking date=null,
+@MeetingHallID int=0,
+@SlotID int=0,
+@EmpID int=0,
+@ACTION VARCHAR(100),
+@PMSGOUT varchar(100)=null output
+
+)
+as
+begin
+  if(@ACTION='login')
+   begin
+     select * from EmployeeMaster where EmpUserID=@EmpUserID and EmpPassword=@EmpPassword
+   end
+   if(@ACTION='Bind_Slot')
+   begin
+     
+         SELECT S.SlotID,S.SlotName FROM SlotMaster S
+         WHERE S.SlotID NOT IN (SELECT SlotID FROM MeetingHallBooking WHERE  
+         DateOfBooking=CONVERT(DATE,@DateOfBooking) AND MeetingHallID=@MeetingHallID)
+   end
+    if(@ACTION='bindmettinghall')
+   begin
+     select * from MeetingHall 
+   end
+    if(@ACTION='Save_schedulemeeting')
+   begin
+     insert into MeetingHallBooking(DateOfBooking,MeetingHallID,SlotID,EmpID)
+	 values(@DateOfBooking,@MeetingHallID,@SlotID,@EmpID)
+	set @PMSGOUT=1
+
+	
+   end
+     if(@ACTION='BindScheduleAsSlotid')
+   begin
+
+						SELECT ISNULL([Slot - 1],'') AS [Slot1],ISNULL([Slot - 2],'') AS [Slot2],ISNULL( [Slot - 3],'') AS  [Slot3],ISNULL([Slot - 4],'') AS [Slot4],ISNULL([Slot - 5],'') AS [Slot5],ISNULL( [Slot - 6],'') AS [Slot6],
+					ISNULL( [Slot - 7],'') AS [Slot7],ISNULL( [Slot - 8],'') AS [Slot8] FROM   
+					(
+						SELECT S.SlotName,E.EmpName FROM MeetingHallBooking M
+						INNER JOIN SlotMaster S ON M.SlotID=S.SlotID
+						INNER JOIN EmployeeMaster E ON E.EmpID=M.EmpID
+						WHERE M.MeetingHallID=@MeetingHallID AND M.DateOfBooking=@DateOfBooking
+					) A 
+					PIVOT(
+						MAX(EmpName)
+						FOR SlotName IN (
+							[Slot - 1], 
+							[Slot - 2], 
+							[Slot - 3], 
+							[Slot - 4], 
+							[Slot - 5], 
+							[Slot - 6],
+							[Slot - 7],
+							[Slot - 8]
+						   )
+					) AS P;
+
+
+	
+   end
+   if(@ACTION='DisplaysedulebyDate')
+   begin
+			--	  SELECT MeetingHallName, ISNULL([Slot - 1],'') AS [Slot1],ISNULL([Slot - 2],'') AS [Slot2],ISNULL( [Slot - 3],'') AS  [Slot3],ISNULL([Slot - 4],'') AS [Slot4],ISNULL([Slot - 5],'') AS [Slot5],ISNULL( [Slot - 6],'') AS [Slot6],
+			--ISNULL( [Slot - 7],'') AS [Slot7],ISNULL( [Slot - 8],'') AS [Slot8] FROM   
+			--(
+	
+			--	SELECT S.SlotName,E.EmpName,MH.MeetingHallName FROM MeetingHallBooking M
+			--	INNER JOIN SlotMaster S ON M.SlotID=S.SlotID
+			--	INNER JOIN EmployeeMaster E ON E.EmpID=M.EmpID
+			--	INNER JOIN MeetingHall MH ON MH.MeetingHallID=M.MeetingHallID
+			--	WHERE M.DateOfBooking='07/01/2023'
+			--	GROUP BY S.SlotName,E.EmpName,M.MeetingHallID,MH.MeetingHallName
+			--	) A 
+			--PIVOT(
+			--	MAX(EmpName)
+			--	FOR SlotName IN (
+			--		[Slot - 1], 
+			--		[Slot - 2], 
+			--		[Slot - 3], 
+			--		[Slot - 4], 
+			--		[Slot - 5], 
+			--		[Slot - 6],
+			--		[Slot - 7],
+			--		[Slot - 8]
+			--	   )
+			--) AS P;
+			
+
+
+
+							SELECT MeetingHallName,isnull([Slot - 1],'') AS [Slot1], isnull([Slot - 2],'') AS [Slot2], isnull([Slot - 3],'') AS [Slot3], isnull([Slot - 4],'') AS [Slot4], isnull([Slot - 5],'') AS [Slot5], isnull([Slot - 6],'')  AS [Slot6], isnull([Slot - 7],'') AS [Slot7], isnull([Slot - 8],'') AS [Slot8]
+				FROM (
+				  SELECT MeetingHall.MeetingHallName, SlotMaster.SlotName, EmployeeMaster.EmpName
+				  FROM MeetingHall
+				  CROSS JOIN SlotMaster
+				  LEFT JOIN (
+					SELECT MeetingHallID, SlotID, EmpID
+					FROM MeetingHallBooking
+					WHERE DateOfBooking =@DateOfBooking --'07/01/2023' Replace with the desired date
+				  ) AS Booking ON MeetingHall.MeetingHallID = Booking.MeetingHallID AND SlotMaster.SlotID = Booking.SlotID
+				  LEFT JOIN EmployeeMaster ON Booking.EmpID = EmployeeMaster.EmpID
+				) AS PivotData
+				PIVOT (
+				  MAX(EmpName)
+				  FOR SlotName IN ([Slot - 1], [Slot - 2], [Slot - 3], [Slot - 4], [Slot - 5], [Slot - 6], [Slot - 7], [Slot - 8])
+				) AS PivotTable;
+
+
+
+
+
+
+				--SELECT MEETINGHALLNAME,[Slot - 1] as Slot1, [SLOT - 2] as Slot2,    [SLOT - 3]  as Slot3,[SLOT - 4]  as Slot4, [SLOT - 5] as Slot5,[SLOT - 6] as Slot6,   [SLOT - 7]  as Slot7,[SLOT - 8]  as Slot8 FROM 
+				--(SELECT	ML.MEETINGHALLNAME,	S.SLOTNAME,	E.EMPNAME	FROM MeetingHallBooking MB	INNER JOIN MeetingHall ML	ON  MB.MeetingHallID = ML.MeetingHallID	INNER JOIN SlotMaster S	ON MB.SlotID = S.SLOTID	INNER JOIN  EmployeeMaster E	ON MB.EMPID = E.EMPID where DateOfBooking=CONVERT(DATE,'07/01/2023') ) A  	PIVOT	(MAX(A.EMPNAME) FOR A.SLOTNAME IN ([Slot - 1], [SLOT - 2] , [SLOT - 3] ,[SLOT - 4] , [SLOT - 5] ,[SLOT - 6] ,[SLOT - 7] ,[SLOT - 8] 	)) AS R;
+
+
+			   end
+end
+
